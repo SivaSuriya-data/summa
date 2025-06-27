@@ -1,0 +1,2 @@
+# This file ensures the wasm/pkg directory exists
+# WASM files will be generated here

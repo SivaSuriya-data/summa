@@ -21,6 +21,7 @@ function App() {
     stage: "analyzing"
   });
   const [wasmInitialized, setWasmInitialized] = useState(false);
+  const [initializationStatus, setInitializationStatus] = useState("Initializing system...");
 
   useEffect(() => {
     initializeWasm();
@@ -28,10 +29,23 @@ function App() {
 
   const initializeWasm = async () => {
     try {
+      setInitializationStatus("Loading WASM modules...");
       await wasmService.initializeWasm();
       setWasmInitialized(true);
+      setInitializationStatus("System ready!");
+      
+      // Clear status message after 2 seconds
+      setTimeout(() => {
+        setInitializationStatus("");
+      }, 2000);
     } catch (error) {
       console.error("Failed to initialize WASM:", error);
+      setInitializationStatus("System ready (limited functionality)");
+      setWasmInitialized(true); // Allow app to continue
+      
+      setTimeout(() => {
+        setInitializationStatus("");
+      }, 3000);
     }
   };
 
@@ -93,7 +107,7 @@ function App() {
             type: file.type,
             size: convertedBuffer.byteLength,
             status: "completed",
-            downloadUrl: URL.createObjectURL(new Blob([convertedBuffer]))
+            downloadUrl: URL.createObjectURL(new Blob([convertedBuffer], { type: file.type }))
           };
 
           newProcessedFiles.push(processedFile);
@@ -191,9 +205,9 @@ function App() {
               <strong className="text-gray-800"> Competitive Exams </strong>
               Document Converter
             </p>
-            {!wasmInitialized && (
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-yellow-800">Initializing system... Please wait.</p>
+            {initializationStatus && (
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-blue-800">{initializationStatus}</p>
               </div>
             )}
           </div>
